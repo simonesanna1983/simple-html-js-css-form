@@ -72,40 +72,51 @@ function verifyTOTP(token, secret) {
   // $("#epoch").text(time);
   // $("#hmac").empty();
 
-  if (hmac == "KEY MUST BE IN BYTE INCREMENTS") {
-    $("#hmac").append(
-      $("<span/>")
-        .addClass("label important")
-        .append(hmac)
-    );
-  } else {
-    var offset = hex2dec(hmac.substring(hmac.length - 1));
-    var part1 = hmac.substr(0, offset * 2);
-    var part2 = hmac.substr(offset * 2, 8);
-    var part3 = hmac.substr(offset * 2 + 8, hmac.length - offset);
-    if (part1.length > 0)
-      $("#hmac").append(
-        $("<span/>")
-          .addClass("label label-default")
-          .append(part1)
-      );
-    $("#hmac").append(
-      $("<span/>")
-        .addClass("label label-primary")
-        .append(part2)
-    );
-    if (part3.length > 0)
-      $("#hmac").append(
-        $("<span/>")
-          .addClass("label label-default")
-          .append(part3)
-      );
-  }
+
+if (hmac == "KEY MUST BE IN BYTE INCREMENTS") {
+  
+  throw "KEY MUST BE IN BYTE INCREMENTS";
+}
+  // if (hmac == "KEY MUST BE IN BYTE INCREMENTS") {
+  //   $("#hmac").append(
+  //     $("<span/>")
+  //       .addClass("label important")
+  //       .append(hmac)
+  //   );
+  // } else {
+  //   // var offset = hex2dec(hmac.substring(hmac.length - 1));
+  //   // var part1 = hmac.substr(0, offset * 2);
+  //   // var part2 = hmac.substr(offset * 2, 8);
+  //   // var part3 = hmac.substr(offset * 2 + 8, hmac.length - offset);
+  //   // if (part1.length > 0)
+  //   //   $("#hmac").append(
+  //   //     $("<span/>")
+  //   //       .addClass("label label-default")
+  //   //       .append(part1)
+  //   //   );
+  //   // $("#hmac").append(
+  //   //   $("<span/>")
+  //   //     .addClass("label label-primary")
+  //   //     .append(part2)
+  //   // );
+  //   // if (part3.length > 0)
+  //   //   $("#hmac").append(
+  //   //     $("<span/>")
+  //   //       .addClass("label label-default")
+  //   //       .append(part3)
+  //   //   );
+  // }
 
   var otp = (hex2dec(hmac.substr(offset * 2, 8)) & hex2dec("7fffffff")) + "";
   otp = otp.substr(otp.length - 6, 6);
 
   $("#otp").text(otp);
+
+  if (otp === token) {
+    $("#resp").text("OK");
+  } else {
+    $("#resp").text("KO");
+  }
 }
 
 function base32tohex(base32) {
