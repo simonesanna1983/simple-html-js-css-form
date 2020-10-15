@@ -62,7 +62,7 @@ function verifyTOTP(token, secret) {
   shaObj.update(time);
   var hmac = shaObj.getHMAC("HEX");
 
-  $("#qrImg").attr(
+  $("#qrcodeTable").attr(
     "src",
     "https://chart.googleapis.com/chart?chs=200x200&cht=qr&chl=200x200&chld=M|0&cht=qr&chl=otpauth://totp/simone%3Fmysecret%3D" +
       token
@@ -125,5 +125,9 @@ function base32tohex(base32) {
   return hex;
 }
 
-    function dec2hex(s) { return (s < 15.5 ? '0' : '') + Math.round(s).toString(16); }
-    function hex2dec(s) { return parseInt(s, 16); }
+function dec2hex(s) {
+  return (s < 15.5 ? "0" : "") + Math.round(s).toString(16);
+}
+function hex2dec(s) {
+  return parseInt(s, 16);
+}
