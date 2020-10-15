@@ -1,34 +1,32 @@
+document.addEventListener("DOMContentLoaded", function() {
+  var btnCopy = document.getElementById("copy");
+  btnCopy.addEventListener("click", Copy);
 
-document.addEventListener('DOMContentLoaded', function () {
-  var btnCopy = document.getElementById('copy');
-  btnCopy.addEventListener('click', Copy);
+  var btnClear = document.getElementById("clear");
+  btnClear.addEventListener("click", Clear);
 
-  var btnClear = document.getElementById('clear');
-  btnClear.addEventListener('click', Clear);
-
+  var btnSubmitCode = document.getElementById("check");
+  btnSubmitCode.addEventListener("click", SubmitCode);
 });
 
-function Copy(){
-
+function Copy() {
   var firstName = document.getElementById("fname").value;
   document.getElementById("s_fname").value = firstName;
 
-  var lastName  = document.getElementById("lname").value;
+  var lastName = document.getElementById("lname").value;
   document.getElementById("s_lname").value = lastName;
 
-  var country  = document.getElementById("country").value;
+  var country = document.getElementById("country").value;
   document.getElementById("s_country").value = country;
 
-  var city  = document.getElementById("lcity").value;
+  var city = document.getElementById("lcity").value;
   document.getElementById("s_lcity").value = city;
 
-  var address  = document.getElementById("laddress").value;
+  var address = document.getElementById("laddress").value;
   document.getElementById("s_laddress").value = address;
 }
 
-
-function Clear(){
-
+function Clear() {
   document.getElementById("s_fname").value = "";
 
   document.getElementById("s_lname").value = "";
@@ -38,4 +36,91 @@ function Clear(){
   document.getElementById("s_lcity").value = "";
 
   document.getElementById("s_laddress").value = "";
+}
+
+function SubmitCode() {
+  debugger;
+  var token = document.getElementById("code").value;
+  verifyTOTP(token);
+}
+
+function leftpad(str, len, pad) {
+  if (len + 1 >= str.length) {
+    str = Array(len + 1 - str.length).join(pad) + str;
+  }
+  return str;
+}
+
+function verifyTOTP(token) {
+  var key = base32tohex(token); //base32tohex($('#secret').val());
+  var epoch = Math.round(new Date().getTime() / 1000.0);
+  var time = leftpad(dec2hex(Math.floor(epoch / 30)), 16, "0");
+
+  // updated for jsSHA v2.0.0 - http://caligatio.github.io/jsSHA/
+  var shaObj = new jsSHA("SHA-1", "HEX");
+  shaObj.setHMACKey(key, "HEX");
+  shaObj.update(time);
+  var hmac = shaObj.getHMAC("HEX");
+
+  $("#qrImg").attr(
+    "src",
+    "https://chart.googleapis.com/chart?chs=200x200&cht=qr&chl=200x200&chld=M|0&cht=qr&chl=otpauth://totp/user@host.com%3Fsecret%3D" +
+      $("#secret").val()
+  );
+  $("#secretHex").text(key);
+  $("#secretHexLength").text(key.length * 4 + " bits");
+  $("#epoch").text(time);
+  $("#hmac").empty();
+
+  if (hmac == "KEY MUST BE IN BYTE INCREMENTS") {
+    $("#hmac").append(
+      $("<span/>")
+        .addClass("label important")
+        .append(hmac)
+    );
+  } else {
+    var offset = hex2dec(hmac.substring(hmac.length - 1));
+    var part1 = hmac.substr(0, offset * 2);
+    var part2 = hmac.substr(offset * 2, 8);
+    var part3 = hmac.substr(offset * 2 + 8, hmac.length - offset);
+    if (part1.length > 0)
+      $("#hmac").append(
+        $("<span/>")
+          .addClass("label label-default")
+          .append(part1)
+      );
+    $("#hmac").append(
+      $("<span/>")
+        .addClass("label label-primary")
+        .append(part2)
+    );
+    if (part3.length > 0)
+      $("#hmac").append(
+        $("<span/>")
+          .addClass("label label-default")
+          .append(part3)
+      );
+  }
+
+  var otp = (hex2dec(hmac.substr(offset * 2, 8)) & hex2dec("7fffffff")) + "";
+  otp = otp.substr(otp.length - 6, 6);
+
+  $("#otp").text(otp);
+}
+
+function base32tohex(base32) {
+  var base32chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+  var bits = "";
+  var hex = "";
+
+  for (var i = 0; i < base32.length; i++) {
+    var val = base32chars.indexOf(base32.charAt(i).toUpperCase());
+    bits += leftpad(val.toString(2), 5, "0");
+  }
+
+  for (var i = 0; i + 4 <= bits.length; i += 4) {
+    var chunk = bits.substr(i, 4);
+    hex = hex + parseInt(chunk, 2).toString(16);
+  }
+  return hex;
 }
