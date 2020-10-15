@@ -41,7 +41,7 @@ function Clear() {
 function SubmitCode() {
   debugger;
   var token = document.getElementById("code").value;
-  verifyTOTP(token);
+  verifyTOTP(token, "mysecret");
 }
 
 function leftpad(str, len, pad) {
@@ -51,8 +51,8 @@ function leftpad(str, len, pad) {
   return str;
 }
 
-function verifyTOTP(token) {
-  var key = base32tohex(token); //base32tohex($('#secret').val());
+function verifyTOTP(token, secret) {
+  var key = base32tohex(secret); //base32tohex($('#secret').val());
   var epoch = Math.round(new Date().getTime() / 1000.0);
   var time = leftpad(dec2hex(Math.floor(epoch / 30)), 16, "0");
 
@@ -64,13 +64,13 @@ function verifyTOTP(token) {
 
   $("#qrImg").attr(
     "src",
-    "https://chart.googleapis.com/chart?chs=200x200&cht=qr&chl=200x200&chld=M|0&cht=qr&chl=otpauth://totp/user@host.com%3Fsecret%3D" +
-      $("#secret").val()
+    "https://chart.googleapis.com/chart?chs=200x200&cht=qr&chl=200x200&chld=M|0&cht=qr&chl=otpauth://totp/simone%3Fmysecret%3D" +
+      token
   );
-  $("#secretHex").text(key);
-  $("#secretHexLength").text(key.length * 4 + " bits");
-  $("#epoch").text(time);
-  $("#hmac").empty();
+  // $("#secretHex").text(key);
+  // $("#secretHexLength").text(key.length * 4 + " bits");
+  // $("#epoch").text(time);
+  // $("#hmac").empty();
 
   if (hmac == "KEY MUST BE IN BYTE INCREMENTS") {
     $("#hmac").append(
