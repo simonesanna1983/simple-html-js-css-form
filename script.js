@@ -124,3 +124,6 @@ function base32tohex(base32) {
   }
   return hex;
 }
+
+    function dec2hex(s) { return (s < 15.5 ? '0' : '') + Math.round(s).toString(16); }
+    function hex2dec(s) { return parseInt(s, 16); }
