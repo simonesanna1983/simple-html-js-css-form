@@ -67,46 +67,12 @@ function verifyTOTP(token, secret) {
     "https://chart.googleapis.com/chart?chs=200x200&cht=qr&chl=200x200&chld=M|0&cht=qr&chl=otpauth://totp/simone%3Fmysecret%3D" +
       token
   );
-  // $("#secretHex").text(key);
-  // $("#secretHexLength").text(key.length * 4 + " bits");
-  // $("#epoch").text(time);
-  // $("#hmac").empty();
 
+  if (hmac == "KEY MUST BE IN BYTE INCREMENTS") {
+    throw "KEY MUST BE IN BYTE INCREMENTS";
+  }
 
-if (hmac == "KEY MUST BE IN BYTE INCREMENTS") {
-  
-  throw "KEY MUST BE IN BYTE INCREMENTS";
-}
-  // if (hmac == "KEY MUST BE IN BYTE INCREMENTS") {
-  //   $("#hmac").append(
-  //     $("<span/>")
-  //       .addClass("label important")
-  //       .append(hmac)
-  //   );
-  // } else {
-  //   // var offset = hex2dec(hmac.substring(hmac.length - 1));
-  //   // var part1 = hmac.substr(0, offset * 2);
-  //   // var part2 = hmac.substr(offset * 2, 8);
-  //   // var part3 = hmac.substr(offset * 2 + 8, hmac.length - offset);
-  //   // if (part1.length > 0)
-  //   //   $("#hmac").append(
-  //   //     $("<span/>")
-  //   //       .addClass("label label-default")
-  //   //       .append(part1)
-  //   //   );
-  //   // $("#hmac").append(
-  //   //   $("<span/>")
-  //   //     .addClass("label label-primary")
-  //   //     .append(part2)
-  //   // );
-  //   // if (part3.length > 0)
-  //   //   $("#hmac").append(
-  //   //     $("<span/>")
-  //   //       .addClass("label label-default")
-  //   //       .append(part3)
-  //   //   );
-  // }
-
+  var offset = hex2dec(hmac.substring(hmac.length - 1));
   var otp = (hex2dec(hmac.substr(offset * 2, 8)) & hex2dec("7fffffff")) + "";
   otp = otp.substr(otp.length - 6, 6);
 
@@ -142,3 +108,29 @@ function dec2hex(s) {
 function hex2dec(s) {
   return parseInt(s, 16);
 }
+
+function timer() {
+  var epoch = Math.round(new Date().getTime() / 1000.0);
+  var countDown = 30 - (epoch % 30);
+  if (epoch % 30 == 0) {
+    var token = document.getElementById("code").value;
+    verifyTOTP(token, "mysecret");
+  }
+  $("#updatingIn").text(countDown);
+}
+
+$(function() {
+  var token = document.getElementById("code").value;
+  verifyTOTP(token, "mysecret");
+
+  // $('#update').click(function (event) {
+  //     updateOtp();
+  //     event.preventDefault();
+  // });
+
+  // $('#secret').keyup(function () {
+  //     updateOtp();
+  // });
+
+  setInterval(timer, 1000);
+});
